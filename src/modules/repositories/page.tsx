@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { load, Store } from '@tauri-apps/plugin-store'
 
 interface Repository {
   name: string;
@@ -11,8 +12,18 @@ const GitManager: React.FC = () => {
   const [targetDirectory, setTargetDirectory] = useState('');
   const [repositories, setRepositories] = useState<string[]>([]);
   const [message, setMessage] = useState('');
+  const [store, setStore] = useState<Store>();
 
-  // Carrega a lista de repositórios ao montar o componente
+  useEffect(() => {
+    const loadStore = async () => {
+      const _store = await load('my_settings.json');
+      setStore(_store)
+      const _directoryPath = await _store.get<string>('directoryPath')
+      setDirectoryPath(_directoryPath||"")
+    }
+    loadStore()
+  }, [])
+
   useEffect(() => {
     if (directoryPath) {
       handleListRepositories();
@@ -65,7 +76,10 @@ const GitManager: React.FC = () => {
             <input
               type="text"
               value={directoryPath}
-              onChange={(e) => setDirectoryPath(e.target.value)}
+              onChange={async (e) => {
+                setDirectoryPath(e.target.value)
+                await store?.set('directoryPath', e.target.value)
+              }}
               placeholder="/Users/seu_usuario/projetos"
             />
           </label>
