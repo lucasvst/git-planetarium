@@ -2,6 +2,13 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
+#[derive(Debug, serde::Serialize)]
+pub struct RepositoryInfo {
+    name: String,
+    last_commit_date: String,
+    branch_count: u32,
+}
+
 #[tauri::command]
 pub fn setup(path: String) -> Result<String, String> {
     let path = Path::new(&path);
@@ -42,30 +49,47 @@ pub fn git_clone(repo_url: String, target_dir: String) -> Result<String, String>
 }
 
 #[tauri::command]
-pub fn list_repositories(path: String) -> Result<Vec<String>, String> {
+pub fn list_repositories(path: String) -> Result<Vec<RepositoryInfo>, String> {
     let path = Path::new(&path);
-
     if !path.exists() || !path.is_dir() {
-        return Err(format!(
-            "O caminho não é um diretório válido: {}",
-            path.display()
-        ));
+        return Err(format!("O caminho não é um diretório válido: {}", path.display()));
     }
 
-    let mut repos: Vec<String> = Vec::new();
+    let mut repos: Vec<RepositoryInfo> = Vec::new();
 
     for entry in fs::read_dir(path).map_err(|e| format!("Erro ao ler o diretório: {}", e))? {
         let entry = entry.map_err(|e| format!("Erro ao ler entrada: {}", e))?;
         let entry_path = entry.path();
 
         if entry_path.is_dir() {
-            // Verifica se a pasta contém um subdiretório .git
             let git_path = entry_path.join(".git");
             if git_path.exists() && git_path.is_dir() {
+                // A pasta é um repositório Git, vamos coletar as informações
                 if let Some(name) = entry_path.file_name() {
-                    if let Some(s_name) = name.to_str() {
-                        repos.push(s_name.to_string());
-                    }
+                    let name_str = name.to_str().unwrap_or("unknown").to_string();
+
+                    // Comando para pegar a data do último commit
+                    let last_commit_date = Command::new("git")
+                        .arg("log").arg("-1").arg("--format=%cd")
+                        .current_dir(&entry_path)
+                        .output().ok()
+                        .and_then(|o| String::from_utf8(o.stdout).ok())
+                        .unwrap_or_else(|| "N/A".to_string());
+
+                    // Comando para contar o número de branches
+                    let branch_count = Command::new("git")
+                        .arg("branch").arg("-a")
+                        .current_dir(&entry_path)
+                        .output().ok()
+                        .and_then(|o| String::from_utf8(o.stdout).ok())
+                        .map(|s| s.lines().count() as u32)
+                        .unwrap_or(0);
+
+                    repos.push(RepositoryInfo {
+                        name: name_str,
+                        last_commit_date: last_commit_date.trim().to_string(),
+                        branch_count,
+                    });
                 }
             }
         }

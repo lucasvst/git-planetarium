@@ -127,7 +127,7 @@ const GitManager: React.FC = () => {
             <tbody>
               {repositories.map((repo, index) => (
                 <tr key={index}>
-                  <td>{repo}</td>
+                  <td>{JSON.stringify(repo)}</td>
                 </tr>
               ))}
             </tbody>
