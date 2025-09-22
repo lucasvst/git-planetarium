@@ -1,19 +1,14 @@
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-#[tauri::command]
-fn foo(name: &str) -> String {
-    format!("Hello, {}! You've been foo from Rust!", name)
-}
+#[path = "modules/git_manager.rs"] mod git_manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
-        .invoke_handler(tauri::generate_handler![foo])
+        .invoke_handler(tauri::generate_handler![
+          git_manager::setup,
+          git_manager::git_clone,
+          git_manager::list_repositories
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,20 +1,29 @@
+import { Suspense, use } from "react"
 import { invoke } from "@tauri-apps/api/core"
-import { use } from "react"
 
 const fetchData = async () => {
     try {
-        const response = await invoke("foo", { name: 'dashboard' })
+        const response = await invoke("greet", { name: 'Dashboard' })
         return response
     } catch (error) {
+        console.log(error)
         return []
     }
 }
 
+function DashboardContent ({ dataPromise }) {
+    const data = use(dataPromise)
+    return (
+        <>Dashboard data: {JSON.stringify(data)}</>
+    )
+}
+
 export default function Dashboard () {
 
-    const data = use(fetchData())
-
+    const dataPromise = fetchData()
     return (
-      <>Dashboard data: {JSON.stringify(data)}</>
+        <Suspense fallback={<p>⌛Fetching data...</p>}>
+            <DashboardContent dataPromise={dataPromise} />
+        </Suspense>
     )
 }
