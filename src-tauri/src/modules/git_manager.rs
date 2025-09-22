@@ -46,7 +46,10 @@ pub fn list_repositories(path: String) -> Result<Vec<String>, String> {
     let path = Path::new(&path);
 
     if !path.exists() || !path.is_dir() {
-        return Err(format!("O caminho não é um diretório válido: {}", path.display()));
+        return Err(format!(
+            "O caminho não é um diretório válido: {}",
+            path.display()
+        ));
     }
 
     let mut repos: Vec<String> = Vec::new();
