@@ -54,12 +54,12 @@ const GitManager: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+    <div>
       <h1>Gerenciador de Repositórios Git</h1>
 
-      <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
+      <div>
         <h2>Configuração e Listagem</h2>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div>
           <label>
             Caminho do Diretório:
             <input
@@ -67,17 +67,16 @@ const GitManager: React.FC = () => {
               value={directoryPath}
               onChange={(e) => setDirectoryPath(e.target.value)}
               placeholder="/Users/seu_usuario/projetos"
-              style={{ padding: '8px', flex: '1', minWidth: '300px' }}
             />
           </label>
-          <button onClick={handleSetup} style={{ padding: '8px 16px' }}>Criar Diretório</button>
-          <button onClick={handleListRepositories} style={{ padding: '8px 16px' }}>Listar Repositórios</button>
+          <button onClick={handleSetup}>Criar Diretório</button>
+          <button onClick={handleListRepositories}>Listar Repositórios</button>
         </div>
       </div>
 
-      <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
+      <div>
         <h2>Clonar Repositório</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div>
           <label>
             URL do Repositório:
             <input
@@ -85,7 +84,6 @@ const GitManager: React.FC = () => {
               value={repoUrl}
               onChange={(e) => setRepoUrl(e.target.value)}
               placeholder="https://github.com/usuario/repo.git"
-              style={{ padding: '8px', width: '100%' }}
             />
           </label>
           <label>
@@ -95,28 +93,27 @@ const GitManager: React.FC = () => {
               value={targetDirectory}
               onChange={(e) => setTargetDirectory(e.target.value)}
               placeholder="/Users/seu_usuario/projetos/novo-repo"
-              style={{ padding: '8px', width: '100%' }}
             />
           </label>
-          <button onClick={handleGitClone} style={{ padding: '8px 16px', alignSelf: 'flex-start' }}>Clonar</button>
+          <button onClick={handleGitClone}>Clonar</button>
         </div>
       </div>
 
-      {message && <p style={{ color: message.startsWith('Erro') ? 'red' : 'green', fontWeight: 'bold' }}>{message}</p>}
+      {message && <p>{message}</p>}
 
       {repositories.length > 0 && (
-        <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
+        <div>
           <h2>Repositórios no Diretório</h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table>
             <thead>
-              <tr style={{ backgroundColor: '#f2f2f2' }}>
-                <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left' }}>Nome do Repositório</th>
+              <tr>
+                <th>Nome do Repositório</th>
               </tr>
             </thead>
             <tbody>
               {repositories.map((repo, index) => (
                 <tr key={index}>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>{repo}</td>
+                  <td>{repo}</td>
                 </tr>
               ))}
             </tbody>
