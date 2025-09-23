@@ -1,22 +1,15 @@
-import { Link, Route, Routes } from "react-router"
+import { Route, Routes } from "react-router"
 
 import Dashboard from "./modules/dashboard/page"
-import Repositories from "./modules/repositories/page"
+import Full from "./layouts/full";
 
 function App () {
   return (
-    <main>
-      <nav>
-        <ul>
-          <li><Link to="/">Dashboard</Link></li>
-          <li><Link to="/repositories">Repositories</Link></li>
-        </ul>
-      </nav>
-      <Routes>
+    <Routes>
+      <Route element={<Full />}>
         <Route index element={<Dashboard />} />
-        <Route path="/repositories" element={<Repositories />} />
-      </Routes>
-    </main>
+      </Route>
+    </Routes>
   );
 }
 
