@@ -1,29 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import { load, Store } from '@tauri-apps/plugin-store'
 
-interface Repository {
-  name: string;
-  last_commit_date: string;
-  branch_count: number;
-}
+import {
+  Setup,
+  ListRepositories,
+  GitClone,
+  Repository,
+} from "./../api/GitManager";
+
+import useSettings from './../settings';
 
 const GitManager: React.FC = () => {
   const [directoryPath, setDirectoryPath] = useState('');
   const [repoUrl, setRepoUrl] = useState('');
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [message, setMessage] = useState('');
-  const [store, setStore] = useState<Store>();
+
+  const [settings, setSettings] = useSettings()
 
   useEffect(() => {
-    const loadStore = async () => {
-      const _store = await load('my_settings.json');
-      setStore(_store)
-      const _directoryPath = await _store.get<string>('directoryPath')
-      setDirectoryPath(_directoryPath||"")
-    }
-    loadStore()
-  }, [])
+    setDirectoryPath(settings.directoryPath||"")
+  }, [settings])
+
 
   useEffect(() => {
     if (directoryPath) {
@@ -34,7 +31,7 @@ const GitManager: React.FC = () => {
   const handleSetup = async () => {
     setMessage('');
     try {
-      const result = await invoke<string>('setup', { path: directoryPath });
+      const result = await Setup(directoryPath);
       setMessage(result);
     } catch (error) {
       setMessage(`Erro: ${error}`);
@@ -44,7 +41,7 @@ const GitManager: React.FC = () => {
   const handleListRepositories = async () => {
     setMessage('');
     try {
-      const result = await invoke<Repository[]>('list_repositories', { path: directoryPath });
+      const result = await ListRepositories(directoryPath);
       setRepositories(result);
       setMessage(`Encontrados ${result.length} repositórios.`);
     } catch (error) {
@@ -56,7 +53,7 @@ const GitManager: React.FC = () => {
   const handleGitClone = async () => {
     setMessage('');
     try {
-      const result = await invoke<string>('git_clone', { repoUrl: repoUrl, targetDir: directoryPath });
+      const result = await GitClone(repoUrl, directoryPath);
       setMessage(result);
       // Recarrega a lista de repositórios após o clone
       await handleListRepositories();
@@ -78,7 +75,7 @@ const GitManager: React.FC = () => {
             value={directoryPath}
             onChange={async (e) => {
               setDirectoryPath(e.target.value)
-              await store?.set('directoryPath', e.target.value)
+              setSettings({ directoryPath: e.target.value })
             }}
             placeholder="/Users/seu_usuario/projetos"
           />
