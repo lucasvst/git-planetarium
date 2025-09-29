@@ -44,7 +44,7 @@ const GitManager: React.FC = () => {
   const handleListRepositories = async () => {
     setMessage('');
     try {
-      const result = await invoke<string[]>('list_repositories', { path: directoryPath });
+      const result = await invoke<Repository[]>('list_repositories', { path: directoryPath });
       setRepositories(result);
       setMessage(`Encontrados ${result.length} repositórios.`);
     } catch (error) {
