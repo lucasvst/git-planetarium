@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 
 import {
   Setup,
@@ -14,6 +15,7 @@ const GitManager: React.FC = () => {
   const [repoUrl, setRepoUrl] = useState('');
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const [settings, setSettings] = useSettings()
 
@@ -60,6 +62,10 @@ const GitManager: React.FC = () => {
     } catch (error) {
       setMessage(`Erro: ${error}`);
     }
+  };
+
+  const handleRowClick = (repoName: string) => {
+    navigate(`/repositories/${repoName}`);
   };
 
   return (
@@ -135,7 +141,7 @@ const GitManager: React.FC = () => {
             </thead>
             <tbody>
               {repositories.map((repo, index) => (
-                <tr key={index}>
+                <tr key={index} onClick={() => handleRowClick(repo.name)} style={{ cursor: 'pointer' }}>
                   <td>{repo.name}</td>
                   <td>{repo.last_commit_date}</td>
                   <td>{repo.branch_count}</td>

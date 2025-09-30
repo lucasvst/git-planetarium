@@ -9,7 +9,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             git_manager::setup,
             git_manager::git_clone,
-            git_manager::list_repositories
+            git_manager::list_repositories,
+            git_manager::get_repository_commits
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

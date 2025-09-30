@@ -15,3 +15,6 @@ export const ListRepositories = async (directoryPath: string) => {
 export const GitClone = async (repoUrl: string, directoryPath: string) => {
     return await invoke<string>('git_clone', { repoUrl: repoUrl, targetDir: directoryPath });
 }
+export const GetRepositoryCommits = async (repoName: string, directoryPath: string) => {
+    return await invoke<any[]>('get_repository_commits', { repoName: repoName, path: directoryPath });
+}
