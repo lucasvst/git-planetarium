@@ -7,6 +7,7 @@ pub struct RepositoryInfo {
     name: String,
     last_commit_date: String,
     branch_count: u32,
+    current_branch: String,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -93,10 +94,18 @@ pub fn list_repositories(path: String) -> Result<Vec<RepositoryInfo>, String> {
                         .map(|s| s.lines().count() as u32)
                         .unwrap_or(0);
 
+                    let current_branch = Command::new("git")
+                        .arg("branch").arg("--show-current")
+                        .current_dir(&entry_path)
+                        .output().ok()
+                        .and_then(|o| String::from_utf8(o.stdout).ok())
+                        .unwrap_or("unknown".to_string());
+
                     repos.push(RepositoryInfo {
                         name: name_str,
                         last_commit_date: last_commit_date.trim().to_string(),
                         branch_count,
+                        current_branch: current_branch,
                     });
                 }
             }

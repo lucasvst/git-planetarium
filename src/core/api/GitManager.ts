@@ -4,6 +4,7 @@ export interface Repository {
   name: string;
   last_commit_date: string;
   branch_count: number;
+  current_branch: string;
 }
 
 export const Setup = async (directoryPath: string) => {

@@ -37,6 +37,7 @@ const DashboardPage: React.FC = () => {
     { header: 'Nome do Repositório', key: 'name' as const },
     { header: 'Última Atualização', key: 'last_commit_date' as const },
     { header: 'Branches', key: 'branch_count' as const },
+    { header: 'Current Branch', key: 'current_branch' as const },
   ];
 
   return (
