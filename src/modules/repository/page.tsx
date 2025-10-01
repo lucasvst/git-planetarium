@@ -5,6 +5,8 @@ import { GetRepositoryCommits } from './../../core/api/GitManager';
 
 import useSettings from './../settings';
 
+import { Table } from './../../ui/Table';
+
 const RepositoryPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [commits, setCommits] = useState<any[]>([]);
@@ -28,31 +30,19 @@ const RepositoryPage: React.FC = () => {
     }
   };
 
+  const columns = [
+    { header: 'Hash', key: 'hash' as const },
+    { header: 'Author', key: 'author' as const },
+    { header: 'Date', key: 'date' as const },
+    { header: 'Message', key: 'message' as const },
+  ];
+
   return (
     <div className="flex flex-col gap-4">
       <h2>Commits for {name}</h2>
       {message && <p>{message}</p>}
       {commits.length > 0 && (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Hash</th>
-              <th>Author</th>
-              <th>Date</th>
-              <th>Message</th>
-            </tr>
-          </thead>
-          <tbody>
-            {commits.map((commit, index) => (
-              <tr key={index}>
-                <td>{commit.hash}</td>
-                <td>{commit.author}</td>
-                <td>{commit.date}</td>
-                <td>{commit.message}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Table columns={columns} data={commits} />
       )}
     </div>
   );
