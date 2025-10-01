@@ -1,8 +1,9 @@
 import { Route, Routes } from "react-router"
 
+import Full from "./layouts/full"
 import Dashboard from "./modules/dashboard/page"
 import RepositoryPage from "./modules/repository/page"
-import Full from "./layouts/full";
+import SettingsPage from "./modules/settings/page"
 
 function App () {
   return (
@@ -10,6 +11,7 @@ function App () {
       <Route element={<Full />}>
         <Route index element={<Dashboard />} />
         <Route path="/repositories/:name" element={<RepositoryPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
     </Routes>
   );

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 
-import { GetRepositoryCommits } from './../api/GitManager';
+import { GetRepositoryCommits } from './../../core/api/GitManager';
+
 import useSettings from './../settings';
 
 const RepositoryPage: React.FC = () => {
