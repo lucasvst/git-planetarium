@@ -8,7 +8,7 @@ import {
 
 import useSettings from './../settings';
 
-const GitManager: React.FC = () => {
+const DashboardPage: React.FC = () => {
 
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const navigate = useNavigate();
@@ -61,4 +61,4 @@ const GitManager: React.FC = () => {
   );
 };
 
-export default GitManager;
+export default DashboardPage;
