@@ -7,19 +7,19 @@ export default function () {
             <div className="navbar bg-base-100 shadow-sm">
                 <div className="navbar-start" />
                 <div className="navbar-center">
-                    <NavLink to="/">
-                        <h1>Planetarium</h1>
+                    <NavLink to="/" className="text-xl">
+                        planetarium
                     </NavLink>
                 </div>
                 <div className="navbar-end">
-                    {/* <button className="btn btn-ghost btn-circle"> */}
-                    <NavLink to="/settings">
+                    <NavLink to="/settings" className="btn btn-ghost btn-circle">
                         <Cog6ToothIcon className="size-6" />
                     </NavLink>
-                    {/* </button> */}
                 </div>
             </div>
-            <Outlet />
+            <div className="p-4">
+                <Outlet />
+            </div>
         </div>
     )
 }
