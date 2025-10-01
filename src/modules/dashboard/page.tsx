@@ -5,6 +5,7 @@ import {
   ListRepositories,
   Repository,
 } from "./../../core/api/GitManager";
+import { Table } from './../../ui/Table';
 
 import useSettings from './../settings';
 
@@ -28,37 +29,26 @@ const DashboardPage: React.FC = () => {
     }
   }, [settings.directoryPath]);
 
-  const handleRowClick = (repoName: string) => {
-    navigate(`/repositories/${repoName}`);
+  const handleRowClick = (repo: Repository) => {
+    navigate(`/repositories/${repo.name}`);
   };
+
+  const columns = [
+    { header: 'Nome do Repositório', key: 'name' as const },
+    { header: 'Última Atualização', key: 'last_commit_date' as const },
+    { header: 'Branches', key: 'branch_count' as const },
+  ];
 
   return (
     <div className="flex flex-col gap-4">
       {repositories.length > 0 && (
         <div>
           <h2>Repositórios no Diretório</h2>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Nome do Repositório</th>
-                <th>Última Atualização</th>
-                <th>Branches</th>
-              </tr>
-            </thead>
-            <tbody>
-              {repositories.map((repo, index) => (
-                <tr key={index} onClick={() => handleRowClick(repo.name)} style={{ cursor: 'pointer' }}>
-                  <td>{repo.name}</td>
-                  <td>{repo.last_commit_date}</td>
-                  <td>{repo.branch_count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <Table columns={columns} data={repositories} onRowClick={handleRowClick} />
         </div>
       )}
     </div>
   );
-};
+}
 
 export default DashboardPage;
