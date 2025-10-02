@@ -19,3 +19,6 @@ export const GitClone = async (repoUrl: string, directoryPath: string) => {
 export const GetRepositoryCommits = async (repoName: string, directoryPath: string) => {
     return await invoke<any[]>('get_repository_commits', { repoName: repoName, path: directoryPath });
 }
+export const GetRepositoryBranches = async (repoName: string, directoryPath: string) => {
+    return await invoke<any[]>('get_repository_branches', { repoName: repoName, path: directoryPath });
+}

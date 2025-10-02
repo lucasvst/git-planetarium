@@ -6,6 +6,7 @@ import { GetRepositoryCommits } from './../../core/api/GitManager';
 import useSettings from './../settings';
 
 import { Table } from './../../ui/Table';
+import BranchDropdown from './ui/BranchDropdown';
 
 const RepositoryPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
@@ -39,6 +40,10 @@ const RepositoryPage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
+      <BranchDropdown
+        repositoryName={name!}
+        directoryPath={settings.directoryPath!}
+      />
       <h2>Commits for {name}</h2>
       {message && <p>{message}</p>}
       {commits.length > 0 && (
