@@ -11,7 +11,7 @@ interface TableProps<T> {
 
 export function Table<T extends { [key: string]: any }>({ columns, data, onRowClick }: TableProps<T>) {
   return (
-    <table className="table">
+    <table>
       <thead>
         <tr>
           {columns.map((col) => (
