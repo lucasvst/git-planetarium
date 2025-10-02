@@ -5,9 +5,10 @@ import {
   ListRepositories,
   Repository,
 } from "./../../core/api/GitManager";
-import { Table } from './../../ui/Table';
 
 import useSettings from './../settings';
+import { Button } from '@/components/ui/button';
+import { EasyTable } from '@/components/ui/table';
 
 const DashboardPage: React.FC = () => {
 
@@ -45,9 +46,10 @@ const DashboardPage: React.FC = () => {
       {repositories.length > 0 && (
         <div>
           <h2>Repositórios no Diretório</h2>
-          <Table columns={columns} data={repositories} onRowClick={handleRowClick} />
+          <EasyTable columns={columns} data={repositories} onRowClick={handleRowClick} />
         </div>
       )}
+      <Button>Clone repository</Button>
     </div>
   );
 }

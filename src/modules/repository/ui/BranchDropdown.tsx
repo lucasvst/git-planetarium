@@ -1,7 +1,7 @@
 import { memo, Suspense, useEffect, useState } from "react";
 
-import Dropdown from "./../../../ui/Dropdown";
 import { GetRepositoryBranches } from "./../../../core/api/GitManager";
+import { EasySelect } from "@/components/ui/select";
 
 interface BranchDropdown {
     repositoryName: string
@@ -28,12 +28,13 @@ function BranchDropdownImpl (props: BranchDropdown) {
     }, [])
 
     return (
-        <Dropdown
-            label="Branches"
-            items={branches.map(branch => ({
+        <EasySelect
+            options={branches.map(branch => ({
                 label: branch.name,
-                onClick: console.log,
+                value: branch.name,
             }))}
+            onChange={console.log}
+            placeholder="Branches"
         />
     )
 }

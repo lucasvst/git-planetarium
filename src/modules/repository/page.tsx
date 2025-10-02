@@ -5,8 +5,8 @@ import { GetRepositoryCommits } from './../../core/api/GitManager';
 
 import useSettings from './../settings';
 
-import { Table } from './../../ui/Table';
 import BranchDropdown from './ui/BranchDropdown';
+import { EasyTable } from '@/components/ui/table';
 
 const RepositoryPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
@@ -47,7 +47,7 @@ const RepositoryPage: React.FC = () => {
       <h2>Commits for {name}</h2>
       {message && <p>{message}</p>}
       {commits.length > 0 && (
-        <Table columns={columns} data={commits} />
+        <EasyTable columns={columns} data={commits} />
       )}
     </div>
   );
