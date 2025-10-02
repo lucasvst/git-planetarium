@@ -16,6 +16,12 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [settings] = useSettings()
 
+  useEffect(() => {
+    if (settings.directoryPath) {
+      handleListRepositories(settings.directoryPath);
+    }
+  }, []);
+
   const handleListRepositories = async (directoryPath: string) => {
     try {
       setRepositories(await ListRepositories(directoryPath));
@@ -23,12 +29,6 @@ const DashboardPage: React.FC = () => {
       setRepositories([]);
     }
   };
-
-  useEffect(() => {
-    if (settings.directoryPath) {
-      handleListRepositories(settings.directoryPath);
-    }
-  }, [settings.directoryPath]);
 
   const handleRowClick = (repo: Repository) => {
     navigate(`/repositories/${repo.name}`);
@@ -44,10 +44,7 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-4">
       {repositories.length > 0 && (
-        <div>
-          <h2>Repositórios no Diretório</h2>
-          <EasyTable columns={columns} data={repositories} onRowClick={handleRowClick} />
-        </div>
+        <EasyTable columns={columns} data={repositories} onRowClick={handleRowClick} />
       )}
       <Button>Clone repository</Button>
     </div>
