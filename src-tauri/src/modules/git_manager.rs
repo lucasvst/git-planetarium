@@ -18,7 +18,7 @@ pub struct CommitInfo {
     message: String,
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn setup(path: String) -> Result<String, String> {
     let path = Path::new(&path);
     // Verifica se o caminho já existe e é um diretório
@@ -33,7 +33,7 @@ pub fn setup(path: String) -> Result<String, String> {
     }
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn git_clone(repo_url: String, target_dir: String) -> Result<String, String> {
     let output = Command::new("git")
         .arg("clone")
@@ -57,7 +57,7 @@ pub fn git_clone(repo_url: String, target_dir: String) -> Result<String, String>
     }
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn list_repositories(path: String) -> Result<Vec<RepositoryInfo>, String> {
     let path = Path::new(&path);
     if !path.exists() || !path.is_dir() {
@@ -115,7 +115,7 @@ pub fn list_repositories(path: String) -> Result<Vec<RepositoryInfo>, String> {
     Ok(repos)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn get_repository_commits(repo_name: String, path: String) -> Result<Vec<CommitInfo>, String> {
     let repo_path = Path::new(&path).join(repo_name);
     if !repo_path.exists() || !repo_path.is_dir() {
@@ -159,7 +159,7 @@ pub struct Branch {
     last_commit_date: String,
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn get_repository_branches(repo_name: String, path: String) -> Result<Vec<Branch>, String> {
     let repo_path = Path::new(&path).join(repo_name);
     if !repo_path.exists() || !repo_path.is_dir() {
@@ -243,7 +243,7 @@ pub struct CommitDetails {
     file_changes: Vec<FileChange>,
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn get_commit_details(
     repo_name: String,
     commit_hash: String,
