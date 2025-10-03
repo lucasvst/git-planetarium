@@ -196,3 +196,197 @@ pub fn get_repository_branches(repo_name: String, path: String) -> Result<Vec<Br
 
     Ok(branches)
 }
+
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitStats {
+    files_changed: u32,
+    lines_added: u32,
+    lines_removed: u32,
+    total_changes: u32,
+}
+
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FileChange {
+    file_path: String,
+    status: String,
+    lines_added: u32,
+    lines_removed: u32,
+    diff_snippet: String,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct Reference {
+    #[serde(rename = "type")]
+    ref_type: String,
+    value: String,
+}
+
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CommitDetails {
+    hash_short: String,
+    hash_full: String,
+    repository_name: String,
+    repository_path: String,
+    author_name: String,
+    author_email: String,
+    committer_name: String,
+    committer_email: String,
+    committer_date: String,
+    message_title: String,
+    message_body: String,
+    references: Vec<Reference>,
+    branches_on_commit: Vec<String>,
+    stats: CommitStats,
+    file_changes: Vec<FileChange>,
+}
+
+#[tauri::command]
+pub fn get_commit_details(
+    repo_name: String,
+    commit_hash: String,
+    path: String,
+) -> Result<CommitDetails, String> {
+    let repo_path = Path::new(&path).join(&repo_name);
+    if !repo_path.exists() || !repo_path.is_dir() {
+        return Err(format!(
+            "O repositório não foi encontrado em: {}",
+            repo_path.display()
+        ));
+    }
+
+    // 1. Get commit metadata, message, and stats in one command
+    let output = Command::new("git")
+        .arg("show")
+        .arg(&commit_hash)
+        .arg("--pretty=format:---GITAGENT_START---%n%h%n%H%n%an%n%ae%n%cn%n%ce%n%cI%n%s%n%b%n---GITAGENT_END---")
+        .arg("--stat")
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to execute git show: {}", e))?;
+
+    if !output.status.success() {
+        return Err(String::from_utf8_lossy(&output.stderr).to_string());
+    }
+
+    let output_str = String::from_utf8_lossy(&output.stdout);
+
+    // --- METADATA PARSING ---
+    let metadata_part = output_str
+        .split("---GITAGENT_START---")
+        .nth(1)
+        .unwrap_or("")
+        .split("---GITAGENT_END---")
+        .next()
+        .unwrap_or("");
+
+    let mut lines = metadata_part.lines().skip(1); // Skip the first empty line
+    let hash_short = lines.next().unwrap_or("").to_string();
+    let hash_full = lines.next().unwrap_or("").to_string();
+    let author_name = lines.next().unwrap_or("").to_string();
+    let author_email = lines.next().unwrap_or("").to_string();
+    let committer_name = lines.next().unwrap_or("").to_string();
+    let committer_email = lines.next().unwrap_or("").to_string();
+    let committer_date = lines.next().unwrap_or("").to_string();
+    let message_title = lines.next().unwrap_or("").to_string();
+    let message_body = lines.collect::<Vec<&str>>().join("\n");
+
+    // --- STATS PARSING ---
+    let mut files_changed = 0;
+    let mut lines_added = 0;
+    let mut lines_removed = 0;
+
+    if let Some(stat_summary) = output_str.lines().last() {
+        if stat_summary.contains("changed") {
+            let parts: Vec<&str> = stat_summary.split(", ").collect();
+            for part in parts {
+                if let Some(num_str) = part.split_whitespace().next() {
+                    if part.contains("file") {
+                        files_changed = num_str.parse().unwrap_or(0);
+                    } else if part.contains("insertion") {
+                        lines_added = num_str.parse().unwrap_or(0);
+                    } else if part.contains("deletion") {
+                        lines_removed = num_str.parse().unwrap_or(0);
+                    }
+                }
+            }
+        }
+    }
+
+    let stats = CommitStats {
+        files_changed,
+        lines_added,
+        lines_removed,
+        total_changes: lines_added + lines_removed,
+    };
+
+    // --- FILE CHANGES PARSING ---
+    // This part is more complex, as we need status, and diff snippets.
+    // For simplicity in this example, we'll get the file list and a mock snippet.
+    // A full implementation would parse the diff output from the `git show` command.
+    let mut file_changes: Vec<FileChange> = Vec::new();
+    if let Some(diff_part) = output_str.split("---GITAGENT_END---").nth(1) {
+        // A simplified way to find file paths from the stat line
+        for line in diff_part.lines() {
+            if line.contains("|") && !line.starts_with(" ") {
+                let file_path = line.split("|").next().unwrap_or("").trim().to_string();
+                if !file_path.is_empty() {
+                     file_changes.push(FileChange {
+                        file_path,
+                        status: "Modified".to_string(), // Placeholder
+                        lines_added: 0, // Placeholder
+                        lines_removed: 0, // Placeholder
+                        diff_snippet: "Diff not implemented".to_string(), // Placeholder
+                    });
+                }
+            }
+        }
+    }
+
+
+    // --- BRANCHES AND TAGS ---
+    let branches_output = Command::new("git")
+        .arg("branch")
+        .arg("--contains")
+        .arg(&commit_hash)
+        .arg("--format=%(refname:short)")
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to get branches: {}", e))?;
+    let branches_str = String::from_utf8_lossy(&branches_output.stdout);
+    let branches_on_commit: Vec<String> = branches_str.lines().map(|s| s.trim().to_string()).collect();
+
+    let tags_output = Command::new("git")
+        .arg("tag")
+        .arg("--contains")
+        .arg(&commit_hash)
+        .current_dir(&repo_path)
+        .output()
+        .map_err(|e| format!("Failed to get tags: {}", e))?;
+    let tags_str = String::from_utf8_lossy(&tags_output.stdout);
+    let references: Vec<Reference> = tags_str.lines().map(|s| Reference {
+        ref_type: "TAG".to_string(),
+        value: s.trim().to_string(),
+    }).collect();
+
+
+    Ok(CommitDetails {
+        hash_short,
+        hash_full,
+        repository_name: repo_name,
+        repository_path: repo_path.to_str().unwrap_or("").to_string(),
+        author_name,
+        author_email,
+        committer_name,
+        committer_email,
+        committer_date,
+        message_title,
+        message_body,
+        references,
+        branches_on_commit,
+        stats,
+        file_changes,
+    })
+}

@@ -11,7 +11,8 @@ pub fn run() {
             git_manager::git_clone,
             git_manager::list_repositories,
             git_manager::get_repository_commits,
-            git_manager::get_repository_branches
+            git_manager::get_repository_branches,
+            git_manager::get_commit_details
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
